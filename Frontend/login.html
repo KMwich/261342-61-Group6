@@ -27,19 +27,22 @@
                     if ($('#password').val() === '') {
                         alert('Password cannot be empty')
                     } else {
-                        $.post('http://httpbin.org/post',
+                        $.post('/login',
                             { 
                                 username: $('#username').val(), 
                                 password: $('#password').val() 
-                            }, (Response) => {
-                                console.log(Response)
+                            }, (res, status) => {
+                                if (status === 'success') {
+                                    if (res.customerID) {
+                                        window.location = '/customer'
+                                    }
+                                }
                             })
                     }
                 }
             })
         })
     </script>
-
 </head>
 
 <body style="height:100vh">
