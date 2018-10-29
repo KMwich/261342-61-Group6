@@ -33,8 +33,10 @@
                                 password: $('#password').val() 
                             }, (res, status) => {
                                 if (status === 'success') {
-                                    if (res.customerID) {
+                                    if (res.customer_id) {
                                         window.location = '/customer'
+                                    } else {
+                                        window.location = '/officer'
                                     }
                                 }
                             })
