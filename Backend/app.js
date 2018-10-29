@@ -1,6 +1,5 @@
 const express = require("express");
 const path = require("path");
-const mysql = require("mysql")
 const Database = require("./database")
 
 const app = express()
@@ -12,22 +11,6 @@ const db = new Database(() => {
     app.listen(port, () => console.log(`Example app listening on port ${port}!`));
 });
 
-const connect = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "group6"
-});
-
-connect.connect(err => {
-    if (err) {
-        console.error("error connecting: " + err.stack);
-        return;
-    }
-
-    console.log("connected as id " + connect.threadId);
-});
-
 app.get("/", (req, res) => {
     res.setHeader("Content-type", "text/html");
     res.sendFile(path.join(__dirname + "/../Frontend/login.html"));
@@ -36,23 +19,28 @@ app.get("/", (req, res) => {
 app.post("/login", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
-    connect.query('select * from login where username = ? and password = ?', [user, pass], (err, result) => {
+    db.login.find({username: user, password: pass}, (err, result) => {
         if (err) {
-            res.status(500).send(err);
-        } else {
-            if (result[0].office_id) {
-                
+            console.log(err)
+        }else{
+            if (result.length === 0) {
+                res.sendStatus(401)
             } else {
-                connect.query('select * from Customers where ID = ?', [result[0].Customers_ID], (err, result) => {
-                    if (err) {
-                        res.status(500).send(err);
-                    } else {
+                if (result[0].officer_id) {
+                    db.officers.find({ id : result[0].officer_id }, (err, result) => {
                         res.status(200).send({
-                            name: result[0].first_name + result[0].sur_name,
-                            customerID: result[0].ID
+                            name: result[0].fname + ' ' + result[0].lname,
+                            officer_id: result[0].id
                         })
-                    }
-                })
+                    })
+                } else {
+                    db.customers.find({ id : result[0].customer_id }, (err, result) => {
+                        res.status(200).send({
+                            name: result[0].fname + ' ' + result[0].lname,
+                            customer_id: result[0].id
+                        })
+                    })
+                }
             }
         }
     })
