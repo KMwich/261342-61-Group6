@@ -23,8 +23,22 @@ const models = {
             methods: {
                 fullname: function() {
                     return this.fname + ' ' + this.lname
-                } 
+                }
+            },
+            hook: {
+                beforeCreate: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.customers.get(this.id, (err, result) => {
+                            if (err) {
+                                resolve();
+                            }else{
+                                reject("Already has this officer");
+                            }
+                        })
+                    })
+                }   
             }
+
         })
 
         models.customers = db.define('customers', {
@@ -41,6 +55,19 @@ const models = {
                 fullname: function() {
                     return this.fname + ' ' + this.lname
                 } 
+            },
+            hook: {
+                beforeCreate: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.customers.get(this.id, (err, result) => {
+                            if (err) {
+                                resolve();
+                            }else{
+                                reject("Already has this customer");
+                            }
+                        })
+                    })
+                }   
             }
         })
 
@@ -75,6 +102,20 @@ const models = {
             asset: String,
             payback: Number,
             customer_id: Number
+        }, {
+            hook: {
+                beforeCreate: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.customers.get(this.customer_id, (err, result) => {
+                            if (err) {
+                                reject("Don't has this customer");
+                            }else{
+                                resolve();
+                            }
+                        })
+                    })
+                }   
+            }
         })
 
         models.tracking= db.define('tracking', {
@@ -90,6 +131,36 @@ const models = {
             position: Number,
             officer_id: Number,
             customer_id: Number
+        }, {
+            hook: {
+                beforeCreate: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.login.get(this.username, (err, res) => {
+                            if (err) {
+                                if (officer_id) {
+                                    models.officers.get(this.officer_id, (err, res) => {
+                                        if (err) {
+                                            resolve();
+                                        }else{
+                                            reject("Don't has this officer")
+                                        }
+                                    })
+                                }else{ 
+                                    models.customers.get(this.customer_id, (err, res) => {
+                                        if (err) {
+                                            resolve();
+                                        }else {
+                                            reject("Don't has this customer")
+                                        }
+                                    })
+                                }
+                            }else{
+                                reject("Already has this username");
+                            }
+                        })
+                    })
+                }   
+            }
         })
     }
 };
