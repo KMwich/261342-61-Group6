@@ -3,6 +3,7 @@ const path = require("path");
 const orm = require("orm");
 const jwt = require("jsonwebtoken")
 const { models } = require("./database")
+const ejs = require('ejs'),
 
 const app = express()
 app.use(express.json())
@@ -54,5 +55,32 @@ app.post("/login", (req, res) => {
 app.use(function(req, res){
     res.sendStatus(404);
 });
+app.get("/custommer", (req, res) => {
+    var token =decryp(req.header["Authorization"])
+    req.models.customers.get(token.customer_id,(err, result) => {
+        if (err) {
+            console.log('Not found Custommer ' + user)
+            res.sendStatus(403)
+        }else{
+            var html = ejs.render('<%= people.join(", "); %>', {
+                fname :result.fname,
+                lname : result.lname,
+                DOB : result.DOB,
+                gender : result.gender,
+                phone : result.phone,
+                ID : result.ID,
+                homeaddress : result.homeaddress,
+                workaddress : result.workaddress
+            });
+            
+        }
+    })
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname + "/../Frontend/Customer/CustommerView.html"));
+});
+
+const decryp = function(token){
+    return jwt.verify(token, 'group6');
+}
 
 app.listen(port, () => console.log(`261342 Project app listening on port ${port}!`))
