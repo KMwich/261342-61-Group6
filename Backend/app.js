@@ -119,6 +119,18 @@ app.post("/createcustomer", (req, res) => {
 });
 
 
+app.post("/editCustomer", (req, res) => {
+    req.models.customers.get(this.id, (err, result) => {  
+        if (err) {
+            console.log("Don't has customer_id")
+            res.sendStatus(403)
+        }else{
+            
+        }
+    })     
+});
+
+
 app.get("/createLoan", (req, res) => {
     res.setHeader("Content-type", "text/html");
     res.sendFile(path.join(__dirname + "/../Frontend/crateLoan.html"));
@@ -156,52 +168,41 @@ app.get("/customerList", (req, res) => {
 });
 
 
-// app.get("/calender", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/calender.html"));
-// });
+app.get("/loanList", (req, res) => {
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname + "/../Frontend/loanList.html"));
+    req.models.loan.find( true, (err, res) => {
+        if (err) {
+            console.log("Failed show loan")
+            res.sendStatus(403)
+        }else{
+            res.sendStatus(200);
+        }
+    })
+});
+
+app.get("/DoW", (req, res) => {
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname + "/../Frontend/DoW.html"));
+});
+
+app.post("/Dow")
 
 
 
-// app.get("/tracking", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/tracking.html"));
-// });
+
+
+app.get("/toDoList", (req, res) => {
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname + "/../Frontend/toDoList.html"));
+});
 
 
 
-// app.get("/customer", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/customer.html"));
-// });
-
-
-
-// app.get("/request_list", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/request_list.html"));
-// });
-
-
-
-// app.get("/loan", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/loan.html"));
-// });
-
-
-
-// app.get("/account", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/account.html"));
-// });
-
-
-
-// app.get("/transaction", (req, res) => {
-//     res.setHeader("Content-type", "text/html");
-//     res.sendFile(path.join(__dirname + "/../Frontend/transaction.html"));
-// });
+app.get("/trackLoan", (req, res) => {
+    res.setHeader("Content-type", "text/html");
+    res.sendFile(path.join(__dirname + "/../Frontend/trackLoan.html"));
+});
 
 
 app.use(function(req, res){
