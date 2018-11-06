@@ -26,12 +26,7 @@
                 password: $('#password').val() 
             }, (res, status) => {
                 if (status === 'success') {
-                    document.cookie = "token=" + res.token
-                    if (res.customer_id) {
-                        window.location = '/customer'
-                    } else {
-                        window.location = '/officer'
-                    }
+                    window.location = res.redirect
                 }
             })
         }
