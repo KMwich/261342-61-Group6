@@ -17,6 +17,12 @@ app.use(session({
 }))
 app.set('view engine', 'ejs')
 
+app.get("/html/:path", (req, res) => {
+    console.log(req.params.path)
+    // res.render()
+    res.send('test')
+})
+
 app.get("/", (req, res) => {
     res.render('login');
 });
