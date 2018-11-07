@@ -49,7 +49,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
-INSERT INTO `customers` VALUES (1,'Nice','Nice','home','0001-01-11','home','0851234567',false,NULL);
+INSERT INTO `customers` VALUES (1,'Nice','Nice','home','0001-01-11','home','0851234567',false,NULL,NULL);
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 

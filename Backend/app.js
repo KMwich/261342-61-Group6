@@ -93,13 +93,14 @@ app.post("/admin/createOfficer", (req, res) => {
     const pass = req.body.password
     const admin = req.body.admin
     const position = req.body.position
-    req.models.officers.create({},(err, result) => {  
+    req.models.officers.create({},(err, result) => {
+        const id = result.id
         if (err) {
             console.log('add officer failed' + user)
             res.sendStatus(403)
         }else{
             req.models.login.create({ username: user, password: pass, admin: admin, 
-                position: position}, (err, result1) => {
+                position: position, officer_id: id}, (err, result1) => {
                 if (err) {
                     result.remove((err) => {
                         console.log('add officer failed' + user)
@@ -107,6 +108,53 @@ app.post("/admin/createOfficer", (req, res) => {
                     })
                 } else {
                     res.sendStatus(200);
+                }
+            })
+        }
+    })     
+});
+
+app.post("/officer", (req, res) => {
+    const fname = req.body.fname
+    const lname = req.body.lname
+    const gender = req.body.gender
+    const ssn = req.body.ssn
+    req.models.officers.get(req.session.user.officer_id, (err, result) => {
+        if (err) {
+            console.log('Edit officer failed')
+            res.sendStatus(403)
+        } else {
+            result.fname = fname
+            result.lname = lname
+            result.gender = gender
+            result.ssn = ssn
+    
+            result.save((err, result) => {
+                if (err) {
+                    console.log('Edit officer failed')
+                    res.sendStatus(403)
+                } else {
+                    if (req.session.user.position) {
+                        req.models.depts.create({id: result.id, fname: result.fname, lname: result.lname, 
+                        gender: result.gender, ssn: result.ssn}, (err, result) => {
+                            if (err) {
+                                console.log('Edit officer failed')
+                                res.sendStatus(403)
+                            } else {
+                                res.sendStatus(200)
+                            }
+                        })
+                    } else {
+                        req.models.crms.create({id: result.id, fname: result.fname, lname: result.lname, 
+                        gender: result.gender, ssn: result.ssn}, (err, result) => {
+                            if (err) {
+                                console.log('Edit officer failed')
+                                res.sendStatus(403)
+                            } else {
+                                res.sendStatus(200)
+                            }
+                        })
+                    }
                 }
             })
         }
@@ -190,12 +238,34 @@ app.get("/crm/editCustomer/:id", (req, res) => {
 });
 
 app.post("/crm/editCustomer/:id", (req, res) => {
-    req.models.customers.get(this.id, (err, result) => {  
+    const fname = req.body.fname
+    const lname = req.body.lname
+    const work = req.body.workaddress
+    const dob = req.body.DOB
+    const home = req.body.homeaddress
+    const phone = req.body.phone
+    const gender = req.body.gender
+    req.models.customers.get(req.params.id, (err, result) => {
         if (err) {
-            console.log("Don't has customer_id")
+            console.log('Edit customer failed')
             res.sendStatus(403)
-        }else{
-            
+        } else {
+            result.fname = fname
+            result.lname = lname
+            result.workaddress = work
+            result.DOB = dob
+            result.homeaddress = home
+            result.phone = phone
+            result.gender = gender
+            result.ssn = ssn
+            result.save((err, result) => {
+                if (err) {
+                    console.log('Edit customer failed')
+                    res.sendStatus(403)
+                } else {
+                    res.sendStatus(200) 
+                }
+            })
         }
     })
 });
@@ -272,7 +342,33 @@ app.get("/crm/loanEdit/:id", (req, res) => {
 });
 
 app.post("/crm/loanEdit/:id", (err, res) => {
-    res.render('crm/LoanEdit')
+    const cus_id = req.body.customer_id
+    const amount = req.body.amount
+    const payback = req.body.payback
+    const rate = req.body.interest_rate
+    const asset = req.body.asset
+    const date = Date.now()
+    req.models.loan.get(req.session.user.id, (err, result) => {
+        if (err) {
+            console.log('Edit loan failed')
+            res.sendStatus(403)
+        } else {
+            result.amount = amount
+            result.interest_rate = rate
+            result.time = date
+            result.asset = asset
+            result.payback = payback
+            result.customer_id = cus_id
+            result.save((err, result) => {
+                if (err) {
+                    console.log('Edit loan failed')
+                    res.sendStatus(403)
+                } else {
+                    res.sendStatus(200) 
+                }
+            })
+        }
+    })
 });
 
 app.get("/crm/DoW", (req, res) => {
@@ -280,16 +376,80 @@ app.get("/crm/DoW", (req, res) => {
 });
 
 app.post("/crm/Dow", (req, res) => {
-
+    var customers = []
+    var count = 0
+    const id = req.body.customer_id
+    req.models.customers.get(id, (err, result) => {
+        count = result.length
+        result.forEach(e => {
+        var customer = {
+            name: e.fullname(),
+            balance: e.balance
+        }
+        req.models.loan.find({customer_id: result.id}, (err, result) => {
+            if (err) {
+                console.log('Edit loan failed')
+                res.sendStatus(403)
+            }else{
+                customer.amount = result[0].amount
+            }
+        })
+        
+    })
 });
+
+var officers = []
+var count = 0
+req.models.officers.find(true, (err, result) => {
+    count = result.length
+    result.forEach(e => {
+        var officer = {
+            id: e.id,
+            name: e.fullname()
+        }
+        req.models.login.find({officer_id: e.id}, (err, result) => {
+            if (err) {
+                console.log(err)
+            } else {
+                officer.username = result[0].username
+                if (result[0].position) {
+                    officer.position = "DEPT"
+                } else {
+                    officer.position = "CRM"
+                }
+                officers.push(officer)
+                if (officers.length == count) {
+                    res.render('admin', { officers })
+                }
+            }
+        })
+    })
+})
+
+
+
+
+
+
 
 app.get("/dept/toDoList", (req, res) => {
     res.render('dept/ToDoList')
 });
 
+
+app.post("/dept/toDoList", (req, res) => {
+   // req.models.customers.find(, (err, res) => {
+
+    })
+});
+
 app.get("/dept/trackLoan", (req, res) => {
     res.render('dept/TrackTheLoan')
 });
+
+app.post("/dept/trackLoan", (req, res) => {
+});
+
 
 app.get("/customer", (req, res) => {
     res.render('Customer/CustommerView')
@@ -303,7 +463,7 @@ app.get("/customer/transaction", (req, res) => {
     res.render('Customer/transaction')
 })
 
-app.get("/customer/transaction", (req, res) => {
+app.get("/customer/ask", (req, res) => {
     res.render('Customer/Ask')
 })
 
@@ -330,10 +490,6 @@ app.get("/customer/transaction", (req, res) => {
 //     res.setHeader("Content-type", "text/html");
 //     res.sendFile(path.join(__dirname + "/../Frontend/Customer/CustommerView.html"));
 // });
-
-function BufferToString(buffer) {
-    return buffer.toJSON().data.toString();
-}
 
 function formatDate(date) {
     var d = new Date(date),

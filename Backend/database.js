@@ -136,9 +136,22 @@ const models = {
             hook: {
                 beforeCreate: function () {
                     return new Promise(function(resolve, reject) {
-                        models.customers.get(this.customer_id, (err, result) => {
+                        models.loan.get(this.id, (err, result) => {
                             if (err) {
-                                reject("Don't has this customer");
+                                reject("Don't has this loan");
+                            }else{
+                                resolve();
+                            }
+                        })
+                    })
+                }   
+            },
+            hook: {
+                beforeSave: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.loan.get(this.id, (err, result) => {
+                            if (err) {
+                                reject("Don't has this loan");
                             }else{
                                 resolve();
                             }
