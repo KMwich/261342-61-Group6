@@ -229,36 +229,52 @@ app.get("/dept/trackLoan", (req, res) => {
     res.render('dept/TrackTheLoan')
 });
 
-app.use(function(req, res){
-    res.sendStatus(404);
-});
+app.get("/customer", (req, res) => {
+    res.render('Customer/CustommerView')
+})
 
-app.get("/custommer", (req, res) => {
-    var token =decryp(req.header["Authorization"])
-    req.models.customers.get(token.customer_id,(err, result) => {
-        if (err) {
-            console.log('Not found Custommer ' + user)
-            res.sendStatus(403)
-        }else{
-            var html = ejs.render('<%= people.join(", "); %>', {
-                fname :result.fname,
-                lname : result.lname,
-                DOB : result.DOB,
-                gender : result.gender,
-                phone : result.phone,
-                ID : result.ID,
-                homeaddress : result.homeaddress,
-                workaddress : result.workaddress
-            });
+app.get("/customer/information", (req, res) => {
+    res.render('Customer/CustommerView')
+})
+
+app.get("/customer/transaction", (req, res) => {
+    res.render('Customer/transaction')
+})
+
+app.get("/customer/transaction", (req, res) => {
+    res.render('Customer/Ask')
+})
+
+// app.get("/custommer", (req, res) => {
+//     var token =decryp(req.header["Authorization"])
+//     req.models.customers.get(token.customer_id,(err, result) => {
+//         if (err) {
+//             console.log('Not found Custommer ' + user)
+//             res.sendStatus(403)
+//         }else{
+//             var html = ejs.render('<%= people.join(", "); %>', {
+//                 fname :result.fname,
+//                 lname : result.lname,
+//                 DOB : result.DOB,
+//                 gender : result.gender,
+//                 phone : result.phone,
+//                 ID : result.ID,
+//                 homeaddress : result.homeaddress,
+//                 workaddress : result.workaddress
+//             });
             
-        }
-    })
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/Customer/CustommerView.html"));
-});
+//         }
+//     })
+//     res.setHeader("Content-type", "text/html");
+//     res.sendFile(path.join(__dirname + "/../Frontend/Customer/CustommerView.html"));
+// });
 
 function BufferToString(buffer) {
     return buffer.toJSON().data.toString();
 }
+
+app.use(function(req, res){
+    res.sendStatus(404);
+});
 
 app.listen(port, () => console.log(`261342 Project app listening on port ${port}!`))
