@@ -37,10 +37,16 @@ app.post("/login", (req, res) => {
                     customer_id: result.customer_id
                 }
                 if (result.officer_id) {
+                    var redirect = ""
+                    if (req.session.user.position) {
+                        redirect = "/dept"
+                    } else {
+                        redirect = "/crm"
+                    }
                     req.models.officers.get(result.officer_id, (err, result) => {
                         req.session.name = result.fullname()
                         res.status(200).send({
-                            redirect: "/crm"
+                            redirect: redirect
                         })
                     })
                 } else {
@@ -95,19 +101,19 @@ app.get("/admin", (req, res) => {
 app.post("/admin/createOfficer", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
-    const admin = req.body.admin
+    // const admin = req.body.admin
     const position = req.body.position
     req.models.officers.create({},(err, result) => {
         const id = result.id
         if (err) {
-            console.log('add officer failed' + user)
+            console.log('add officer failed ' + user)
             res.sendStatus(403)
         }else{
             req.models.login.create({ username: user, password: pass, admin: admin, 
                 position: position, officer_id: id}, (err, result1) => {
                 if (err) {
                     result.remove((err) => {
-                        console.log('add officer failed' + user)
+                        console.log('add officer failed ' + user)
                         res.sendStatus(403)
                     })
                 } else {

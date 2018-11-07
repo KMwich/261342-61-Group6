@@ -19,9 +19,16 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
     <script>
-
-
-
+        function create() {
+            var officer = {
+                username: $('#username').val(),
+                password: $('#password').val(),
+                position: $('#position').val()
+            }
+            $.post('/admin/createOfficer', officer, (res, status) => {
+                console.log(res, status)
+            })
+        }
     </script>
     <style>
         a {
@@ -46,7 +53,7 @@
             <hr style="height:1px;width:100%;;background:black">
             <h4 class="text-left"> List Officer</h4>
             <hr style="height:1px;width:100%;;background:black">
-            <form>
+            <form action="#" method="GET" onsubmit="create()">
                 <div class="form-row">
                     <div class="col-6 row">
                         <div class="col-3">
@@ -71,7 +78,7 @@
                             <label class="mt-2 ml-4">Position</label>
                         </div>
                         <div class="col-auto">
-                            <select class="form-control" style="width: 200px">
+                            <select class="form-control" id="position" style="width: 200px" required>
                                 <option value="0">CRM</option>
                                 <option value="1">DEPT</option>
                             </select>
@@ -80,7 +87,7 @@
                     <div class="col-6 row">
                         <div class="col-3"></div>
                         <div class="col-auto">
-                            <button type="button" class="btn btn-outline-secondary">CREATE</button>
+                            <button type="submit" class="btn btn-outline-secondary">CREATE</button>
                         </div>
                     </div>
                 </div>
