@@ -4,7 +4,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number,
+            gender: Boolean,
             ssn: String
         })
 
@@ -12,7 +12,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number,
+            gender: Boolean,
             ssn: String
         })
 
@@ -20,7 +20,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number,
+            gender: Boolean,
             ssn: String
         }, {
             methods: {
@@ -40,6 +40,19 @@ const models = {
                         })
                     })
                 }   
+            },
+            hook: {
+                beforeSave: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.customers.get(this.id, (err, result) => {
+                            if (err) {
+                                reject("Don't has this officer");
+                            }else{
+                                resolve();
+                            }
+                        })
+                    })
+                }   
             }
 
         })
@@ -52,7 +65,7 @@ const models = {
             DOB: Date,
             homeaddress: String,
             phone: String,
-            gender: Number,
+            gender: Boolean,
             ssn: String
         }, {
             methods: {
@@ -68,6 +81,19 @@ const models = {
                                 resolve();
                             }else{
                                 reject("Already has this customer");
+                            }
+                        })
+                    })
+                }   
+            },
+            hook: {
+                beforeSave: function () {
+                    return new Promise(function(resolve, reject) {
+                        models.customers.get(this.id, (err, result) => {
+                            if (err) {
+                                reject("Don't has this customer");
+                            }else{
+                                resolve();
                             }
                         })
                     })
@@ -131,8 +157,8 @@ const models = {
         models.login = db.define('login', {
             username: {type: 'text', key: true},
             password: String,
-            admin: Number,
-            position: Number,
+            admin: Boolean,
+            position: Boolean,
             officer_id: Number,
             customer_id: Number
         }, {
