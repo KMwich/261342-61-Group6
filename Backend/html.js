@@ -13,4 +13,8 @@ app.get("/:path", (req, res) => {
     else res.render(req.params.path)
 })
 
+app.get("/:path1/:path2", (req, res) => {
+    res.render(req.params.path1 + "/" + req.params.path2)
+})
+
 app.listen(port, () => console.log(`261342 Project app listening on port ${port}!`))
