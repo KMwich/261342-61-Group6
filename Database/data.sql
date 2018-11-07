@@ -18,7 +18,7 @@
 --
 -- Dumping data for table `account`
 --
-
+use `group6`;
 LOCK TABLES `account` WRITE;
 /*!40000 ALTER TABLE `account` DISABLE KEYS */;
 /*!40000 ALTER TABLE `account` ENABLE KEYS */;
@@ -39,7 +39,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `crms` WRITE;
 /*!40000 ALTER TABLE `crms` DISABLE KEYS */;
-INSERT INTO `crms` VALUES (1,'Kwich','Kwich',_binary '\0',NULL),(3,'Ping','Ping',_binary '',NULL);
+INSERT INTO `crms` VALUES (1,'Kwich','Kwich',false,NULL),(3,'Ping','Ping',true,NULL);
 /*!40000 ALTER TABLE `crms` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -49,7 +49,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `customers` WRITE;
 /*!40000 ALTER TABLE `customers` DISABLE KEYS */;
-INSERT INTO `customers` VALUES (1,'Nice','Nice','home','0001-01-11','home','0851234567',_binary '\0',NULL);
+INSERT INTO `customers` VALUES (1,'Nice','Nice','home','0001-01-11','home','0851234567',false,NULL);
 /*!40000 ALTER TABLE `customers` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -59,7 +59,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `debts` WRITE;
 /*!40000 ALTER TABLE `debts` DISABLE KEYS */;
-INSERT INTO `debts` VALUES (2,'Kin','Kin',_binary '\0',NULL),(4,'Beam','Beam',_binary '',NULL);
+INSERT INTO `debts` VALUES (2,'Kin','Kin',false,NULL),(4,'Beam','Beam',true,NULL);
 /*!40000 ALTER TABLE `debts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -78,7 +78,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `login` WRITE;
 /*!40000 ALTER TABLE `login` DISABLE KEYS */;
-INSERT INTO `login` VALUES ('be','be',_binary '\0',_binary '',4,NULL),('ki','ki',_binary '\0',_binary '',2,NULL),('kw','kw',_binary '',_binary '\0',1,NULL),('ni','ni',_binary '\0',_binary '\0',NULL,1),('pi','pi',_binary '\0',_binary '\0',3,NULL);
+INSERT INTO `login` VALUES ('be','be',false,true,4,NULL),('ki','ki',false,true,2,NULL),('kw','kw',true,false,1,NULL),('ni','ni',false,false,NULL,1),('pi','pi',false,false,3,NULL);
 /*!40000 ALTER TABLE `login` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -88,7 +88,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `officers` WRITE;
 /*!40000 ALTER TABLE `officers` DISABLE KEYS */;
-INSERT INTO `officers` VALUES (1,'Kwich','Kwich',_binary '\0',NULL),(2,'Kin','Kin',_binary '\0',NULL),(3,'Ping','Ping',_binary '',NULL),(4,'Beam','Beam',_binary '',NULL);
+INSERT INTO `officers` VALUES (1,'Kwich','Kwich',false,NULL),(2,'Kin','Kin',false,NULL),(3,'Ping','Ping',true,NULL),(4,'Beam','Beam',true,NULL);
 /*!40000 ALTER TABLE `officers` ENABLE KEYS */;
 UNLOCK TABLES;
 
