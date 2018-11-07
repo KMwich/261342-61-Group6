@@ -63,28 +63,32 @@ app.get("/admin", (req, res) => {
     var count = 0
     req.models.officers.find(true, (err, result) => {
         count = result.length
-        result.forEach(e => {
-            var officer = {
-                id: e.id,
-                name: e.fullname()
-            }
-            req.models.login.find({officer_id: e.id}, (err, result) => {
-                if (err) {
-                    res.sendStatus(403)
-                } else {
-                    officer.username = result[0].username
-                    if (result[0].position) {
-                        officer.position = "DEPT"
-                    } else {
-                        officer.position = "CRM"
-                    }
-                    officers.push(officer)
-                    if (officers.length == count) {
-                        res.render('admin', { officers })
-                    }
+        if (count === 0) {
+            res.render('admin', { officers })
+        }else{
+            result.forEach(e => {
+                var officer = {
+                    id: e.id,
+                    name: e.fullname()
                 }
+                req.models.login.find({officer_id: e.id}, (err, result) => {
+                    if (err) {
+                        res.sendStatus(403)
+                    } else {
+                        officer.username = result[0].username
+                        if (result[0].position) {
+                            officer.position = "DEPT"
+                        } else {
+                            officer.position = "CRM"
+                        }
+                        officers.push(officer)
+                        if (officers.length == count) {
+                            res.render('admin', { officers })
+                        }
+                    }
+                })
             })
-        })
+        }
     })
 });
 
@@ -128,7 +132,6 @@ app.post("/officer", (req, res) => {
             result.lname = lname
             result.gender = gender
             result.ssn = ssn
-    
             result.save((err, result) => {
                 if (err) {
                     console.log('Edit officer failed')
@@ -278,26 +281,30 @@ app.get("/crm/loanList", (req, res) => {
             res.sendStatus(403)
         }else{
             count = result.length
-            result.forEach(e => {
-                var loan = {
-                    id: e.id,
-                    amount: e.amount,
-                    time: formatTime(e.time),
-                    asset: e.asset,
-                    payback: e.payback
-                }
-                req.models.customers.get(e.customer_id, (err, result) => {
-                    if (err) {
-                        res.sendStatus(403)
-                    } else {
-                        loan.name = result.fullname()
-                        loans.push(loan)
-                        if (loans.length === count) {
-                            res.render('crm/Loanlist', {loans})
-                        }
+            if (count === 0){
+                res.render('crm/Loanlist', {loans})
+            }else{
+                result.forEach(e => {
+                    var loan = {
+                        id: e.id,
+                        amount: e.amount,
+                        time: formatTime(e.time),
+                        asset: e.asset,
+                        payback: e.payback
                     }
+                    req.models.customers.get(e.customer_id, (err, result) => {
+                        if (err) {
+                            res.sendStatus(403)
+                        } else {
+                            loan.name = result.fullname()
+                            loans.push(loan)
+                            if (loans.length === count) {
+                                res.render('crm/Loanlist', {loans})
+                            }
+                        }
+                    })
                 })
-            })
+            }
         }
     })
 });
@@ -379,25 +386,29 @@ app.post("/crm/Dow", (req, res) => {
     const id = req.body.customer_id
     req.models.customers.get(id, (err, result) => {
         count = result.length
-        result.forEach(e => {
-            var customer = {
-                name: e.fullname(),
-                balance: e.balance
-            }
-            if (err){
-                console.log("Don't has customer")
-                res.sendStatus(403)
-            }else {
-                req.models.loan.find({customer_id: result.id}.sum(), (err, result) => {
-                    if (err) {
-                        console.log('Sum loan failed')
-                        res.sendStatus(403)
-                    }else{
-                        customer.amount = result[0].amount
-                    }
-                })
-            }
-        })   
+        if (count === 0) {
+            console.log("Don't has customer")
+        }else{
+            result.forEach(e => {
+                var customer = {
+                    name: e.fullname(),
+                    balance: e.balance
+                }
+                if (err){
+                    console.log("Don't has customer")
+                    res.sendStatus(403)
+                }else {
+                    req.models.loan.find({customer_id: result.id}.sum(), (err, result) => {
+                        if (err) {
+                            console.log('Sum loan failed')
+                            res.sendStatus(403)
+                        }else{
+                            customer.amount = result[0].amount
+                        }
+                    })
+                }
+            })
+        }
     })
 });
 
