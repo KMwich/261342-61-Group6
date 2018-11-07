@@ -376,61 +376,31 @@ app.get("/crm/DoW", (req, res) => {
 });
 
 app.post("/crm/Dow", (req, res) => {
-    var customers = []
     var count = 0
     const id = req.body.customer_id
     req.models.customers.get(id, (err, result) => {
         count = result.length
         result.forEach(e => {
-        var customer = {
-            name: e.fullname(),
-            balance: e.balance
-        }
-        req.models.loan.find({customer_id: result.id}, (err, result) => {
-            if (err) {
-                console.log('Edit loan failed')
-                res.sendStatus(403)
-            }else{
-                customer.amount = result[0].amount
+            var customer = {
+                name: e.fullname(),
+                balance: e.balance
             }
-        })
-        
+            if (err){
+                console.log("Don't has customer")
+                res.sendStatus(403)
+            }else {
+                req.models.loan.find({customer_id: result.id}.sum(), (err, result) => {
+                    if (err) {
+                        console.log('Sum loan failed')
+                        res.sendStatus(403)
+                    }else{
+                        customer.amount = result[0].amount
+                    }
+                })
+            }
+        })   
     })
 });
-
-var officers = []
-var count = 0
-req.models.officers.find(true, (err, result) => {
-    count = result.length
-    result.forEach(e => {
-        var officer = {
-            id: e.id,
-            name: e.fullname()
-        }
-        req.models.login.find({officer_id: e.id}, (err, result) => {
-            if (err) {
-                console.log(err)
-            } else {
-                officer.username = result[0].username
-                if (result[0].position) {
-                    officer.position = "DEPT"
-                } else {
-                    officer.position = "CRM"
-                }
-                officers.push(officer)
-                if (officers.length == count) {
-                    res.render('admin', { officers })
-                }
-            }
-        })
-    })
-})
-
-
-
-
-
-
 
 app.get("/dept/toDoList", (req, res) => {
     res.render('dept/ToDoList')
@@ -439,8 +409,6 @@ app.get("/dept/toDoList", (req, res) => {
 
 app.post("/dept/toDoList", (req, res) => {
    // req.models.customers.find(, (err, res) => {
-
-    })
 });
 
 app.get("/dept/trackLoan", (req, res) => {
