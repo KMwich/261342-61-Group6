@@ -4,21 +4,24 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number
+            gender: Number,
+            ssn: String
         })
 
         models.debts = db.define('debts', {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number
+            gender: Number,
+            ssn: String
         })
 
         models.officers = db.define('officers', {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
-            gender: Number
+            gender: Number,
+            ssn: String
         }, {
             methods: {
                 fullname: function() {
@@ -49,7 +52,8 @@ const models = {
             DOB: Date,
             homeaddress: String,
             phone: String,
-            gender: Number
+            gender: Number,
+            ssn: String
         }, {
             methods: {
                 fullname: function() {

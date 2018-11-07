@@ -77,7 +77,7 @@
                     </div>
                 </div>
             </form>
-            <hr style="height:1px;width:100%;;background:black">
+            <hr style="height:1px;width:100%;background:black">
             <div class="container">
                 <table class="table">
                     <thead class="thead-light">
@@ -89,12 +89,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% for (var i = 0; i < 10; i++) { %>
+                        <% for (var i = 0; i < officers.length; i++) { %>
                             <tr>
-                                <td>Mark</td>
-                                <td>Otto</td>
-                                <td>@mdo</td>
-                                <td>test</td>
+                                <td><%= officers[i].id %></td>
+                                <td><%= officers[i].username %></td>
+                                <td><%= officers[i].name %></td>
+                                <td><%= officers[i].position %></td>
                             </tr>
                         <% } %>
                     </tbody>

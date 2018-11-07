@@ -17,12 +17,6 @@ app.use(session({
 }))
 app.set('view engine', 'ejs')
 
-app.get("/html/:path", (req, res) => {
-    console.log(req.params.path)
-    // res.render()
-    res.send('test')
-})
-
 app.get("/", (req, res) => {
     res.render('login');
 });
@@ -46,7 +40,7 @@ app.post("/login", (req, res) => {
                     req.models.officers.get(result.officer_id, (err, result) => {
                         req.session.name = result.fullname()
                         res.status(200).send({
-                            redirect: "/officer"
+                            redirect: "/crm"
                         })
                     })
                 } else {
@@ -65,11 +59,36 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/admin", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/admin.html"));
+    var officers = []
+    var count = 0
+    req.models.officers.find(true, (err, result) => {
+        count = result.length
+        result.forEach(e => {
+            var officer = {
+                id: e.id,
+                name: e.fullname()
+            }
+            req.models.login.find({officer_id: e.id}, (err, result) => {
+                if (err) {
+                    console.log(err)
+                } else {
+                    officer.username = result[0].username
+                    if (BufferToString(result[0].position) === "0") {
+                        officer.position = "CRM"
+                    } else {
+                        officer.position = "DEPT"
+                    }
+                    officers.push(officer)
+                    if (officers.length == count) {
+                        res.render('admin', { officers })
+                    }
+                }
+            })
+        })
+    })
 });
 
-app.post("/admin", (req, res) => {
+app.post("/admin/createOfficer", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
     const admin = req.body.admin
@@ -94,12 +113,19 @@ app.post("/admin", (req, res) => {
     })     
 });
 
-app.get("/officer", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/createcustomer.html"));
+app.get("/crm", (req, res) => {
+    res.render('crm/CustomerList')
 });
 
-app.post("/createcustomer", (req, res) => {
+app.get("/crm/customerList", (req, res) => {
+    res.render('crm/CustomerList')
+});
+
+app.get("/crm/createCustomer", (req, res) => {
+    res.render('crm/CreateCustomer')
+});
+
+app.post("/crm/createCustomer", (req, res) => {
     const id = req.body.id  
     const fname = req.body.fname
     const lname = req.body.lname
@@ -130,8 +156,11 @@ app.post("/createcustomer", (req, res) => {
     })     
 });
 
+app.get("/crm/editCustomer/:id", (req, res) => {
+    res.render('crm/EditCustomer')
+});
 
-app.post("/editCustomer", (req, res) => {
+app.post("/crm/editCustomer/:id", (req, res) => {
     req.models.customers.get(this.id, (err, result) => {  
         if (err) {
             console.log("Don't has customer_id")
@@ -139,16 +168,26 @@ app.post("/editCustomer", (req, res) => {
         }else{
             
         }
-    })     
+    })
 });
 
-
-app.get("/createLoan", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/crateLoan.html"));
+app.get("/crm/loanList", (req, res) => {
+    res.render('crm/LoanList')
+    // req.models.loan.find( true, (err, res) => {
+    //     if (err) {
+    //         console.log("Failed show loan")
+    //         res.sendStatus(403)
+    //     }else{
+    //         res.sendStatus(200);
+    //     }
+    // })
 });
 
-app.post("/createLoan", (req, res) => {
+app.get("/crm/createLoan", (req, res) => {
+    res.render('crm/createLoan')
+});
+
+app.post("/crm/createLoan", (req, res) => {
     const cus_id = req.body.customer_id
     const amount = req.body.amount
     const payback = req.body.payback
@@ -166,60 +205,34 @@ app.post("/createLoan", (req, res) => {
     })     
 });
 
-app.get("/customerList", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/customerList.html"));
-    req.models.customers.find( true, (err, res) => {
-        if (err) {
-            console.log("Failed show customer")
-            res.sendStatus(403)
-        }else{
-            res.sendStatus(200);
-        }
-    })
+app.get("/crm/loanEdit/:id", (err, res) => {
+    res.render('crm/LoanEdit')
 });
 
-
-app.get("/loanList", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/loanList.html"));
-    req.models.loan.find( true, (err, res) => {
-        if (err) {
-            console.log("Failed show loan")
-            res.sendStatus(403)
-        }else{
-            res.sendStatus(200);
-        }
-    })
+app.post("/crm/loanEdit/:id", (err, res) => {
+    res.render('crm/LoanEdit')
 });
 
-app.get("/DoW", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/DoW.html"));
+app.get("/crm/DoW", (req, res) => {
+    res.render('crm/DepositWithdraw')
 });
 
-app.post("/Dow")
+app.post("/crm/Dow", (req, res) => {
 
-
-
-
-
-app.get("/toDoList", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/toDoList.html"));
 });
 
-
-
-app.get("/trackLoan", (req, res) => {
-    res.setHeader("Content-type", "text/html");
-    res.sendFile(path.join(__dirname + "/../Frontend/trackLoan.html"));
+app.get("/dept/toDoList", (req, res) => {
+    res.render('dept/ToDoList')
 });
 
+app.get("/dept/trackLoan", (req, res) => {
+    res.render('dept/TrackTheLoan')
+});
 
 app.use(function(req, res){
     res.sendStatus(404);
 });
+
 app.get("/custommer", (req, res) => {
     var token =decryp(req.header["Authorization"])
     req.models.customers.get(token.customer_id,(err, result) => {
@@ -244,8 +257,8 @@ app.get("/custommer", (req, res) => {
     res.sendFile(path.join(__dirname + "/../Frontend/Customer/CustommerView.html"));
 });
 
-const decryp = function(token){
-    return jwt.verify(token, 'group6');
+function BufferToString(buffer) {
+    return buffer.toJSON().data.toString();
 }
 
 app.listen(port, () => console.log(`261342 Project app listening on port ${port}!`))
