@@ -457,11 +457,20 @@ app.post("/dept/trackLoan", (req, res) => {
 
 
 app.get("/customer", (req, res) => {
-    res.render('Customer/CustomerView')
+    req.models.customers.get(req.session.user.customer_id,(err,result) =>{
+        if(err){
+            console.log('No Custommer ID' + req.session.user.customer_id)
+        }else{
+            console.log('OK')
+            res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,phone:result.phone,id:result.id,homeaddress:result.homeaddress,workaddress:result.workaddress})
+            console.log(result.fullname())
+            
+        }
+    })
 })
 
 app.get("/customer/information", (req, res) => {
-    res.render('Customer/CustomerView')
+   res.render('Customer/CustomerView')    
 })
 
 app.get("/customer/transaction", (req, res) => {
