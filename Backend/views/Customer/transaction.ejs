@@ -55,15 +55,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (var i = 0; i < 10; i++) { %>
+                            <% for (var i = 0; i < transactions.length; i++) { %>
                                 <tr>
-                                    <td><%= i*10000%></td>
-                                    <td><%= i + 1%>.00PM</td>
-                                    <% if(i>4){ %>
-                                            <td>Deposit</td>
-                                        <% }else{ %>
-                                            <td>Widthdraw</td>
-                                        <% } %>
+                                    <td><%= transactions[i].amount %></td>
+                                    <td><%= transactions[i].date %>.00PM</td>
+                                    <td><%= transactions[i].type %></td>
                                 </tr>
                             <% } %>
                         </tbody>
