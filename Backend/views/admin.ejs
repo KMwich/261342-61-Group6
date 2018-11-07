@@ -34,10 +34,10 @@
             <hr style="height:1px;width:90%;;background: black" class="mx-auto">
         </nav>
         <div class="container h-100">
-            <h2 class="text-left ml-4 mt-3">ADMIN PANEL</h2>
-            <hr style="height:1px;width:95%;;background:black" class="ml-4">
-            <h4 class="text-left ml-4"> List Officer</h4>
-            <hr style="height:1px;width:95%;;background:black" class="ml-4">
+            <h2 class="text-left mt-3">ADMIN PANEL</h2>
+            <hr style="height:1px;width:100%;;background:black">
+            <h4 class="text-left"> List Officer</h4>
+            <hr style="height:1px;width:100%;;background:black">
             <form>
                 <div class="form-row">
                     <div class="col-6 row">
@@ -57,25 +57,16 @@
                         </div>
                     </div>
                 </div>
-            </form>
-            <form>
                 <div class="form-row mt-3">
                     <div class="col-6 row">
                         <div class="col-3">
                             <label class="mt-2 ml-4">Position</label>
                         </div>
                         <div class="col-auto">
-                            <div class="btn-group">
-                                <button type="button" class="btn btn-secondary" style="width:170px;">Select</button>
-                                <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" id="dropdownMenuReference" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-reference="parent">
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuReference">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
+                            <select class="form-control" style="width: 200px">
+                                <option value="0">CRM</option>
+                                <option value="1">DEPT</option>
+                            </select>
                         </div>
                     </div>
                     <div class="col-6 row">
@@ -86,7 +77,49 @@
                     </div>
                 </div>
             </form>
-            <hr style="height:1px;width:95%;;background:black" class="ml-4">
+            <hr style="height:1px;width:100%;;background:black">
+            <div class="container">
+                <table class="table">
+                    <thead class="thead-light">
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Fullname</th>
+                            <th scope="col">Position</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (var i = 0; i < 10; i++) { %>
+                            <tr>
+                                <td>Mark</td>
+                                <td>Otto</td>
+                                <td>@mdo</td>
+                                <td>test</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                                <span class="sr-only">Previous</span>
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                                <span class="sr-only">Next</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
         </div>
         
     </div>
