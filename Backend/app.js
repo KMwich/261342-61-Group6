@@ -448,9 +448,8 @@ app.post("/dept/trackLoan", (req, res) => {
 app.get("/customer", (req, res) => {
     req.models.customers.get(req.session.user.customer_id,(err,result) =>{
         if(err){
-            console.log('No Custommer ID' + req.session.user.customer_id)
+            res.sendStatus(403)
         }else{
-            console.log('OK')
             res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,phone:result.phone,id:result.id,homeaddress:result.homeaddress,workaddress:result.workaddress})
             console.log(result.fullname())
             
@@ -459,11 +458,40 @@ app.get("/customer", (req, res) => {
 })
 
 app.get("/customer/information", (req, res) => {
-   res.render('Customer/CustomerView')    
+    req.models.customers.get(req.session.user.customer_id,(err,result) =>{
+        if(err){
+            res.sendStatus(403)
+        }else{
+            res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,phone:result.phone,id:result.id,homeaddress:result.homeaddress,workaddress:result.workaddress})
+            console.log(result.fullname())
+            
+        }
+    })   
 })
 
 app.get("/customer/transaction", (req, res) => {
-    res.render('Customer/transaction')
+    var transactions = []
+    var count = 0
+    req.models.transaction.find({customer_id: req.session.user.customer_id},(err,result) => {
+        if(err){
+            res.sendStatus(403)
+        }else{
+            console.log(result.amount)
+            count = result.length
+            result.forEach(e =>{
+                var transaction = {
+                    amount: changeBalance(e.amount),
+                    date:formatDate(e.date)+' '+formatTime(e.date),
+                    type:typeTransaction(e.amount)
+                }   
+            transactions.push(transaction)
+            if(count === transactions.length){
+                res.render('Customer/transaction',{transactions})
+            } 
+            
+            })
+        }
+    })  
 })
 
 app.get("/customer/ask", (req, res) => {
@@ -482,7 +510,7 @@ app.get("/customer/ask", (req, res) => {
 //                 lname : result.lname,
 //                 DOB : result.DOB,
 //                 gender : result.gender,
-//                 phone : result.phone,
+//                 phone : result.phone,git
 //                 ID : result.ID,
 //                 homeaddress : result.homeaddress,
 //                 workaddress : result.workaddress
@@ -517,6 +545,20 @@ function formatTime(time) {
     if (sec.length < 2) sec = '0' + sec;
 
     return [hour, min, sec].join(':')
+}
+function typeTransaction(number){
+    if(number>0){
+        return 'Deposit'
+    }else{
+        return 'Widthdraw'
+    }
+}
+function changeBalance(number){
+    if(number>0){
+        return number
+    }else{
+        return -number
+    }
 }
 
 app.use(function(req, res){
