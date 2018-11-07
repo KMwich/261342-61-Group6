@@ -382,55 +382,46 @@ app.post("/crm/Dow", (req, res) => {
     req.models.customers.get(id, (err, result) => {
         count = result.length
         result.forEach(e => {
-        var customer = {
-            name: e.fullname(),
-            balance: e.balance
-        }
-        req.models.loan.find({customer_id: result.id}, (err, result) => {
-            if (err) {
-                console.log('Edit loan failed')
-                res.sendStatus(403)
-            }else{
-                customer.amount = result[0].amount
+            var customer = {
+                name: e.fullname(),
+                balance: e.balance
             }
+            req.models.loan.find({customer_id: result.id}, (err, result) => {
+                if (err) {
+                    console.log('Edit loan failed')
+                    res.sendStatus(403)
+                }else{
+                    customer.amount = result[0].amount
+                }
+            })
         })
-        
     })
 });
 
-var officers = []
-var count = 0
-req.models.officers.find(true, (err, result) => {
-    count = result.length
-    result.forEach(e => {
-        var officer = {
-            id: e.id,
-            name: e.fullname()
+app.get("/dept", (req, res) => {
+    req.models.loan.find(true, (err, result) => {
+        if (err) {
+            res.sendStatus(403)
+        } else {
+            var loans = []
+            var count = result.length
+            result.forEach(e => {
+                loan = {
+                    id: e.id,
+                    amount: e.amount,
+                    payback: e.payback
+                }
+                req.models.customers.get(e.customer_id, (err, result) => {
+                    loan.name = result.fullname()
+                    loans.push(loan)
+                    if (loans.length === count) {
+                        res.render('dept/ToDoList', {loans})
+                    }
+                })
+            })
         }
-        req.models.login.find({officer_id: e.id}, (err, result) => {
-            if (err) {
-                console.log(err)
-            } else {
-                officer.username = result[0].username
-                if (result[0].position) {
-                    officer.position = "DEPT"
-                } else {
-                    officer.position = "CRM"
-                }
-                officers.push(officer)
-                if (officers.length == count) {
-                    res.render('admin', { officers })
-                }
-            }
-        })
     })
 })
-
-
-
-
-
-
 
 app.get("/dept/toDoList", (req, res) => {
     res.render('dept/ToDoList')
@@ -438,9 +429,7 @@ app.get("/dept/toDoList", (req, res) => {
 
 
 app.post("/dept/toDoList", (req, res) => {
-   // req.models.customers.find(, (err, res) => {
 
-    })
 });
 
 app.get("/dept/trackLoan", (req, res) => {
@@ -448,15 +437,16 @@ app.get("/dept/trackLoan", (req, res) => {
 });
 
 app.post("/dept/trackLoan", (req, res) => {
+
 });
 
 
 app.get("/customer", (req, res) => {
-    res.render('Customer/CustommerView')
+    res.render('Customer/CustomerView')
 })
 
 app.get("/customer/information", (req, res) => {
-    res.render('Customer/CustommerView')
+    res.render('Customer/CustomerView')
 })
 
 app.get("/customer/transaction", (req, res) => {
