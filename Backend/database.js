@@ -54,7 +54,6 @@ const models = {
                     })
                 }   
             }
-
         })
 
         models.customers = db.define('customers', {
@@ -66,7 +65,8 @@ const models = {
             homeaddress: String,
             phone: String,
             gender: Boolean,
-            ssn: String
+            ssn: String,
+            balance: Number
         }, {
             methods: {
                 fullname: function() {

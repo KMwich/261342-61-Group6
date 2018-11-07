@@ -202,19 +202,19 @@ app.post("/crm/createCustomer", (req, res) => {
     const dob = req.body.DOB
     const home = req.body.homeaddress
     const phone = req.body.phone
-    const gen = req.body.gender
+    const gen = (req.body.gender === "1")
     const user = req.body.username
     const pass = req.body.password
-    req.models.customers.create({ id: id, fname: fname, lname: lname, workaddress: work,                     
-    DOB: dob, homeaddress: home, phone: phone, gender: gen  },(err, result) => {  
+    req.models.customers.create({ ssn: id, fname: fname, lname: lname, workaddress: work,                     
+    DOB: dob, homeaddress: home, phone: phone, gender: gen, balance: 0 },(err, result) => {  
         if (err) {
-            console.log('add customer failed' + id)
+            console.log('add customer failed ' + id)
             res.sendStatus(403)
         }else{
-            req.models.login.create({ username: user, password: pass, customer_id: id}, (err, result1) => {
+            req.models.login.create({ username: user, password: pass, customer_id: result.id}, (err, result1) => {
                 if (err) {
                     result.remove((err) => {
-                        console.log('add customer failed' + id)
+                        console.log('add customer failed ' + id)
                         res.sendStatus(403)
                     })
                 } else {
@@ -234,7 +234,6 @@ app.get("/crm/editCustomer/:id", (req, res) => {
             res.render('crm/EditCustomer', {customer})
         }
     })
-    
 });
 
 app.post("/crm/editCustomer/:id", (req, res) => {
@@ -244,7 +243,8 @@ app.post("/crm/editCustomer/:id", (req, res) => {
     const dob = req.body.DOB
     const home = req.body.homeaddress
     const phone = req.body.phone
-    const gender = req.body.gender
+    const gender = (req.body.gender === "1")
+    const ssn = req.body.ssn
     req.models.customers.get(req.params.id, (err, result) => {
         if (err) {
             console.log('Edit customer failed')
@@ -312,8 +312,9 @@ app.post("/crm/createLoan", (req, res) => {
     const payback = req.body.payback
     const rate = req.body.interest_rate
     const asset = req.body.asset
-    const date = Date.now()
-    req.models.loan.create({ amount: amount, interest_rate: rate, Date: date, asset: asset, 
+    const timestamp = Date.now()
+    const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
+    req.models.loan.create({ amount: amount, interest_rate: rate, time: date, asset: asset, 
     payback: payback, customer_id: cus_id }, (err, result) => {  
         if (err) {
             console.log('add loan failed')
@@ -341,24 +342,20 @@ app.get("/crm/loanEdit/:id", (req, res) => {
     })
 });
 
-app.post("/crm/loanEdit/:id", (err, res) => {
-    const cus_id = req.body.customer_id
+app.post("/crm/loanEdit/:id", (req, res) => {
     const amount = req.body.amount
     const payback = req.body.payback
     const rate = req.body.interest_rate
     const asset = req.body.asset
-    const date = Date.now()
-    req.models.loan.get(req.session.user.id, (err, result) => {
+    req.models.loan.get(req.params.id, (err, result) => {
         if (err) {
             console.log('Edit loan failed')
             res.sendStatus(403)
         } else {
             result.amount = amount
             result.interest_rate = rate
-            result.time = date
             result.asset = asset
             result.payback = payback
-            result.customer_id = cus_id
             result.save((err, result) => {
                 if (err) {
                     console.log('Edit loan failed')
@@ -374,6 +371,8 @@ app.post("/crm/loanEdit/:id", (err, res) => {
 app.get("/crm/DoW", (req, res) => {
     res.render('crm/DepositWithdraw')
 });
+
+app.get("/getUser/:id")
 
 app.post("/crm/Dow", (req, res) => {
     var count = 0
