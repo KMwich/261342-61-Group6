@@ -43,17 +43,17 @@
                 <div class="form-row">
                     <div class="col-6">
                         <label class="ml-3" for="amount">Amount</label>
-                        <input type="number" style="width: 300px" class="form-control mt-auto" id="amount" placeholder="Amount" required>
+                        <input type="number" style="width: 300px" class="form-control mt-auto" id="amount" placeholder="Amount" value="<%= loan.amount %>" required>
                     </div>
                     <div class="col-6">
                         <label class="ml-3" for="rate">Interest Rate</label>
-                        <input type="number" style="width: 300px" class="form-control mt-auto" id="rate" placeholder="Interest Rate" required>
+                        <input type="number" style="width: 300px" class="form-control mt-auto" id="rate" placeholder="Interest Rate" value="<%= loan.rate %>" required>
                     </div>
                 </div>
                 <div class="form-row mt-3">
                     <div class="col-6">
                         <label class="ml-3" for="payback">Payback</label>
-                        <input type="number" style="width: 300px" class="form-control mt-auto" id="payback" placeholder="Payback" required>
+                        <input type="number" style="width: 300px" class="form-control mt-auto" id="payback" placeholder="Payback" value="<%= loan.payback %>" required>
                     </div>
                     <!--<div class="col-6">
                         <label class="ml-3" for="account">Account ID</label>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="form-group mt-3">
                     <label class="ml-3" for="asset">Asset</label>
-                    <textarea class="form-control col-9" name="asset" id="asset" rows="3" placeholder="Asset"></textarea>
+                    <textarea class="form-control col-9" name="asset" id="asset" rows="3" placeholder="Asset"><%= loan.asset %></textarea>
                 </div>
                 <div class="form-row mt-4 col-9">
                     <button type="submit" class="btn btn-secondary px-5 mx-auto">Save</button>

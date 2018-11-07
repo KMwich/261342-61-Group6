@@ -70,13 +70,13 @@ app.get("/admin", (req, res) => {
             }
             req.models.login.find({officer_id: e.id}, (err, result) => {
                 if (err) {
-                    console.log(err)
+                    res.sendStatus(403)
                 } else {
                     officer.username = result[0].username
-                    if (BufferToString(result[0].position) === "0") {
-                        officer.position = "CRM"
-                    } else {
+                    if (result[0].position) {
                         officer.position = "DEPT"
+                    } else {
+                        officer.position = "CRM"
                     }
                     officers.push(officer)
                     if (officers.length == count) {
@@ -114,11 +114,32 @@ app.post("/admin/createOfficer", (req, res) => {
 });
 
 app.get("/crm", (req, res) => {
-    res.render('crm/CustomerList')
+    req.models.customers.find(true, (err, result) => {
+        var customers = []
+        result.forEach(e => {
+            customer = {
+                id: e.id,
+                account: e.ssn,
+                name: e.fullname()
+            }
+            customers.push(customer)
+        })
+        res.render('crm/CustomerList', {customers})
+    })
 });
 
 app.get("/crm/customerList", (req, res) => {
-    res.render('crm/CustomerList')
+    req.models.customers.find(true, (err, result) => {
+        var customers = []
+        result.forEach(e => {
+            customer = {
+                id: e.id,
+                name: e.fullname()
+            }
+            customers.push(customer)
+        })
+        res.render('crm/CustomerList', {customers})
+    })
 });
 
 app.get("/crm/createCustomer", (req, res) => {
@@ -157,7 +178,15 @@ app.post("/crm/createCustomer", (req, res) => {
 });
 
 app.get("/crm/editCustomer/:id", (req, res) => {
-    res.render('crm/EditCustomer')
+    req.models.customers.get(req.params.id, (err, customer) => {
+        if (err) {
+            res.sendStatus(404)
+        } else {
+            customer.DOB = formatDate(customer.DOB)
+            res.render('crm/EditCustomer', {customer})
+        }
+    })
+    
 });
 
 app.post("/crm/editCustomer/:id", (req, res) => {
@@ -172,15 +201,35 @@ app.post("/crm/editCustomer/:id", (req, res) => {
 });
 
 app.get("/crm/loanList", (req, res) => {
-    res.render('crm/LoanList')
-    // req.models.loan.find( true, (err, res) => {
-    //     if (err) {
-    //         console.log("Failed show loan")
-    //         res.sendStatus(403)
-    //     }else{
-    //         res.sendStatus(200);
-    //     }
-    // })
+    var loans = []
+    var count = 0
+    req.models.loan.find( true, (err, result) => {
+        if (err) {
+            res.sendStatus(403)
+        }else{
+            count = result.length
+            result.forEach(e => {
+                var loan = {
+                    id: e.id,
+                    amount: e.amount,
+                    time: formatTime(e.time),
+                    asset: e.asset,
+                    payback: e.payback
+                }
+                req.models.customers.get(e.customer_id, (err, result) => {
+                    if (err) {
+                        res.sendStatus(403)
+                    } else {
+                        loan.name = result.fullname()
+                        loans.push(loan)
+                        if (loans.length === count) {
+                            res.render('crm/Loanlist', {loans})
+                        }
+                    }
+                })
+            })
+        }
+    })
 });
 
 app.get("/crm/createLoan", (req, res) => {
@@ -205,8 +254,21 @@ app.post("/crm/createLoan", (req, res) => {
     })     
 });
 
-app.get("/crm/loanEdit/:id", (err, res) => {
-    res.render('crm/LoanEdit')
+app.get("/crm/loanEdit/:id", (req, res) => {
+    req.models.loan.get(req.params.id, (err, result) => {
+        if (err) {
+            res.sendStatus(403)
+        } else {
+            loan = {
+                id: result.id,
+                amount: result.amount,
+                rate: result.interest_rate,
+                payback: result.payback,
+                asset: result.asset
+            }
+            res.render('crm/LoanEdit', {loan})
+        }
+    })
 });
 
 app.post("/crm/loanEdit/:id", (err, res) => {
@@ -271,6 +333,31 @@ app.get("/customer/transaction", (req, res) => {
 
 function BufferToString(buffer) {
     return buffer.toJSON().data.toString();
+}
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+function formatTime(time) {
+    var t = new Date(time),
+        hour = '' + t.getHours(),
+        min = '' + t.getMinutes(),
+        sec = '' + t.getSeconds();
+
+    if (hour.length < 2) hour = '0' + hour;
+    if (min.length < 2) min = '0' + min;
+    if (sec.length < 2) sec = '0' + sec;
+
+    return [hour, min, sec].join(':')
 }
 
 app.use(function(req, res){

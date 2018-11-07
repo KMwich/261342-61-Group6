@@ -52,14 +52,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <% for (var i = 0; i < 10; i++) { %>
+                        <% for (var i = 0; i < loans.length; i++) { %>
                             <tr>
-                                <td>Name <%= i + 1%></td>
-                                <td>999.99</td>
-                                <td>12:31</td>
-                                <td>Home</td>
-                                <td>999.99</td>
-                                <td><a href="#" class="btn btn-secondary px-4">Edit</a></td>
+                                <td><%= loans[i].name %></td>
+                                <td><%= loans[i].amount %></td>
+                                <td><%= loans[i].time %></td>
+                                <td><%= loans[i].asset %></td>
+                                <td><%= loans[i].payback %></td>
+                                <td><a href="/crm/loanEdit/<%= loans[i].id %>" class="btn btn-secondary px-4">Edit</a></td>
                             </tr>
                         <% } %>
                     </tbody>
