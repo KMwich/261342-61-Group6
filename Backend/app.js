@@ -559,8 +559,35 @@ app.post("/debt/toDoList", (req, res) => {
 });
 
 app.get("/debt/trackLoan", (req, res) => {
-    res.render('dept/TrackTheLoan')
+    req.models.loan.find(true, (err, result) => {
+        if (err) {
+            res.render('dept/TrackTheLoan')
+        }else{
+            var loans = []
+            var count = result.length
+            if (result.length === 0){
+                res.render('dept/TrackTheLoan', {loans})
+            }else{
+                result.forEach(e => {
+                    var loan = {
+                        id: e.id,
+                        amount: e.amount
+                    }
+                    req.models.customers.get(e.customer_id, (err, result1) =>{ 
+                        loan.name = result1.fullname()
+                        loans.push(loan)
+                        if (loans.length === count){
+                            res.render('dept/TrackTheLoan', {loans})
+                        }
+                    })
+               })
+            }
+        }
+    })
+
 });
+
+
 
 app.post("/debt/trackLoan", (req, res) => {
 

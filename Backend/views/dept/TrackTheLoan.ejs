@@ -54,11 +54,11 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (var i = 0; i < 10; i++) { %>
+                            <% for (var i = 0; i < loans.length; i++) { %>
                                 <tr>
-                                    <td><%= i + 1%></td>
-                                    <td>Name <%= i + 1%></td>
-                                    <td><%= i*10000%></td>
+                                    <td><%= loans[i].id %></td>
+                                    <td><%= loans[i].name %></td>
+                                    <td><%= loans[i].amount %></td>
                                 </tr>
                             <% } %>
                         </tbody>
