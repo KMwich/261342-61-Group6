@@ -531,50 +531,68 @@ app.post("/dept/trackLoan", (req, res) => {
 
 
 app.get("/customer", (req, res) => {
-    req.models.customers.get(req.session.user.customer_id,(err,result) =>{
-        if(err){
-            res.sendStatus(403)
-        }else{
-            res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,phone:result.phone,id:result.id,homeaddress:result.homeaddress,workaddress:result.workaddress})
-            console.log(result.fullname())
-            
-        }
-    })
+    customerView(req, res)
 })
 
 app.get("/customer/information", (req, res) => {
+    customerView(req, res)
+})
+
+function customerView(req, res) {
+    var customer = {}
     req.models.customers.get(req.session.user.customer_id,(err,result) =>{
         if(err){
             res.sendStatus(403)
         }else{
-            res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,phone:result.phone,id:result.id,homeaddress:result.homeaddress,workaddress:result.workaddress})
-            console.log(result.fullname())
-            
+            req.models.account.get(result.id, (err, result2) => {
+                customer.balance = 0
+                if (err) {
+                    res.sendStatus(401)
+                } else {
+                    customer.balance = result2.amount
+                }
+                req.models.loan.find({customer_id: result.id}, (err, result3) => {
+                    customer.dept = 0
+                    if (err) {
+                        res.sendStatus(401)
+                    } else {
+                        result3.forEach(e => {
+                            customer.dept += e.amount
+                        })
+                    }
+                    res.render('Customer/CustomerView',{firstname:result.fname,surname:result.lname,date:formatDate(result.DOB),gender:result.gender,
+                        phone:result.phone,id:result.ssn,homeaddress:result.homeaddress,workaddress:result.workaddress, blance: customer.balance, deptblance: customer.dept})
+                        console.log(result.fullname())
+                })
+            })     
         }
-    })   
-})
+    }) 
+}
 
 app.get("/customer/transaction", (req, res) => {
     var transactions = []
     var count = 0
     req.models.transaction.find({customer_id: req.session.user.customer_id},(err,result) => {
         if(err){
-            res.sendStatus(403)
+            res.render('Customer/transaction',{transactions})
         }else{
             console.log(result.amount)
             count = result.length
-            result.forEach(e =>{
-                var transaction = {
-                    amount: changeBalance(e.amount),
-                    date:formatDate(e.date)+' '+formatTime(e.date),
-                    type:typeTransaction(e.amount)
-                }   
-            transactions.push(transaction)
-            if(count === transactions.length){
+            if (count === 0) {
                 res.render('Customer/transaction',{transactions})
-            } 
-            
-            })
+            } else {
+                result.forEach(e =>{
+                    var transaction = {
+                        amount: changeBalance(e.amount),
+                        date:formatDate(e.date)+' '+formatTime(e.date),
+                        type:typeTransaction(e.amount)
+                    }   
+                    transactions.push(transaction)
+                    if(count === transactions.length){
+                        res.render('Customer/transaction',{transactions})
+                    } 
+                })
+            }
         }
     })  
 })
