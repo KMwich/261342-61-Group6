@@ -39,7 +39,7 @@ app.post("/login", (req, res) => {
                 if (result.officer_id) {
                     var redirect = ""
                     if (req.session.user.position) {
-                        redirect = "/dept"
+                        redirect = "/debt"
                     } else {
                         redirect = "/crm"
                     }
@@ -312,7 +312,7 @@ app.get("/crm/loanList", (req, res) => {
                     var loan = {
                         id: e.id,
                         amount: e.amount,
-                        time: formatTime(e.time),
+                        time: formatDate(e.time) + ' ' + formatTime(e.time),
                         asset: e.asset,
                         payback: e.payback
                     }
@@ -345,15 +345,22 @@ app.post("/crm/createLoan", (req, res) => {
     const asset = req.body.asset
     const timestamp = Date.now()
     const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
-    req.models.loan.create({ amount: amount, interest_rate: rate, time: date, asset: asset, 
-    payback: payback, customer_id: cus_id }, (err, result) => {  
-        if (err) {
+    req.models.customers.get(cus_id, (err, result) => {
+        if (err){
             console.log('add loan failed')
             res.sendStatus(403)
-        }else{
-            res.sendStatus(200);
+        } else {
+            req.models.loan.create({ amount: amount, interest_rate: rate, time: date, asset: asset, 
+            payback: payback, customer_id: cus_id }, (err, result) => {  
+                if (err) {
+                    console.log('add loan failed')
+                    res.sendStatus(403)
+                }else{
+                    res.sendStatus(200);
+                }
+            })  
         }
-    })     
+    })
 });
 
 app.get("/crm/loanEdit/:id", (req, res) => {
@@ -488,44 +495,74 @@ app.post("/crm/Dow", (req, res) => {
 });
 
 
-app.get("/dept", (req, res) => {
+app.get("/debt", (req, res) => {
     req.models.loan.find(true, (err, result) => {
         if (err) {
             res.sendStatus(403)
         } else {
             var loans = []
             var count = result.length
-            result.forEach(e => {
-                loan = {
-                    id: e.id,
-                    amount: e.amount,
-                    payback: e.payback
-                }
-                req.models.customers.get(e.customer_id, (err, result) => {
-                    loan.name = result.fullname()
-                    loans.push(loan)
-                    if (loans.length === count) {
-                        res.render('dept/ToDoList', {loans})
+            if (result.length === 0) {
+                res.render('dept/ToDoList', {loans})
+            } else {
+                result.forEach(e => {
+                    loan = {
+                        id: e.id,
+                        amount: e.amount,
+                        payback: e.payback
                     }
+                    req.models.customers.get(e.customer_id, (err, result) => {
+                        loan.name = result.fullname()
+                        loans.push(loan)
+                        if (loans.length === count) {
+                            res.render('dept/ToDoList', {loans})
+                        }
+                    })
                 })
-            })
+            }
         }
     })
 })
 
-app.get("/dept/toDoList", (req, res) => {
-    res.render('dept/ToDoList')
+app.get("/debt/toDoList", (req, res) => {
+    req.models.loan.find(true, (err, result) => {
+        if (err) {
+            res.sendStatus(403)
+        } else {
+            var loans = []
+            var count = result.length
+            if (result.length === 0) {
+                res.render('dept/ToDoList', {loans})
+            } else {
+                result.forEach(e => {
+                    var loan = {
+                        id: e.id,
+                        amount: e.amount,
+                        payback: e.payback
+                    }
+                    req.models.customers.get(e.customer_id, (err, result) => {
+                        loan.name = result.fullname()
+                        loans.push(loan)
+                        if (loans.length === count) {
+                            res.render('dept/ToDoList', {loans})
+                        }
+                    })
+                })
+            }
+        }
+    })
 });
 
 
-app.post("/dept/toDoList", (req, res) => {
+app.post("/debt/toDoList", (req, res) => {
+    console.log(req.body)
 });
 
-app.get("/dept/trackLoan", (req, res) => {
+app.get("/debt/trackLoan", (req, res) => {
     res.render('dept/TrackTheLoan')
 });
 
-app.post("/dept/trackLoan", (req, res) => {
+app.post("/debt/trackLoan", (req, res) => {
 
 });
 
