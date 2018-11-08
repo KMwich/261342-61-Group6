@@ -18,43 +18,6 @@ app.use(session({
 app.set('view engine', 'ejs')
 
 app.get("/", (req, res) => {
-    req.models.crms.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.debts.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.officers.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.customers.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.calendar.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.crms.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.request_list.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.account.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.account.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.account.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.account.find(true, (err, res) => {
-        console.log(err)
-    })
-    req.models.account.find(true, (err, res) => {
-        console.log(err)
-    })
-    
     res.render('login');
 });
 
@@ -146,7 +109,6 @@ app.get("/admin", (req, res) => {
 app.post("/admin/createOfficer", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
-    // const admin = req.body.admin
     const position = (req.body.position === "1")
     req.models.officers.create({},(err, result) => {
         const id = result.id

@@ -158,8 +158,8 @@ const models = {
 
         models.tracking= db.define('tracking', {
             priority: Number,
-            loan_id: Number,
-            debt_id: {type: 'number', key: true}
+            loan_id: {type: 'number', key: true},
+            debt_id: Number
         })
 
         models.login = db.define('login', {
