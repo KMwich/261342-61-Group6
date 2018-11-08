@@ -39,9 +39,7 @@ const models = {
                             }
                         })
                     })
-                }   
-            },
-            hook: {
+                },
                 beforeSave: function () {
                     return new Promise(function(resolve, reject) {
                         models.customers.get(this.id, (err, result) => {
@@ -52,7 +50,7 @@ const models = {
                             }
                         })
                     })
-                }   
+                }
             }
         })
 
@@ -65,8 +63,7 @@ const models = {
             homeaddress: String,
             phone: String,
             gender: Boolean,
-            ssn: String,
-            balance: Number
+            ssn: String
         }, {
             methods: {
                 fullname: function() {
@@ -84,9 +81,7 @@ const models = {
                             }
                         })
                     })
-                }   
-            },
-            hook: {
+                },
                 beforeSave: function () {
                     return new Promise(function(resolve, reject) {
                         models.customers.get(this.id, (err, result) => {
@@ -97,13 +92,14 @@ const models = {
                             }
                         })
                     })
-                }   
-            }
+                }  
+            },
         })
 
         models.calendar = db.define('calendar', {
             weekday: Number,
-            officer_id: {type: 'number', key: true}
+            officer_id: Number,
+            id: {type: 'number', key: true}
         })
 
         models.request_list = db.define('request_list', {
@@ -121,7 +117,8 @@ const models = {
         models.transaction = db.define('transaction', {
             amount: Number,
             date: Date,
-            customer_id: {type: 'number', key: true}
+            customer_id: Number,
+            id: {type: 'number', key: true}
         })
 
         models.loan = db.define('loan', {
@@ -144,9 +141,7 @@ const models = {
                             }
                         })
                     })
-                }   
-            },
-            hook: {
+                },
                 beforeSave: function () {
                     return new Promise(function(resolve, reject) {
                         models.loan.get(this.id, (err, result) => {
@@ -157,7 +152,7 @@ const models = {
                             }
                         })
                     })
-                }   
+                }
             }
         })
 

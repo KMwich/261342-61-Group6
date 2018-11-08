@@ -18,6 +18,43 @@ app.use(session({
 app.set('view engine', 'ejs')
 
 app.get("/", (req, res) => {
+    req.models.crms.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.debts.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.officers.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.customers.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.calendar.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.crms.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.request_list.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.account.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.account.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.account.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.account.find(true, (err, res) => {
+        console.log(err)
+    })
+    req.models.account.find(true, (err, res) => {
+        console.log(err)
+    })
+    
     res.render('login');
 });
 
@@ -74,22 +111,30 @@ app.get("/admin", (req, res) => {
         }else{
             result.forEach(e => {
                 var officer = {
-                    id: e.id,
-                    name: e.fullname()
+                    id: e.id
+                }
+                if (e.fname != null) {
+                    officer.name = e.fullname()
                 }
                 req.models.login.find({officer_id: e.id}, (err, result) => {
                     if (err) {
                         res.sendStatus(403)
                     } else {
-                        officer.username = result[0].username
-                        if (result[0].position) {
-                            officer.position = "DEPT"
+                        if (result.length === 0) {
+                            count -= 1
                         } else {
-                            officer.position = "CRM"
+                            officer.username = result[0].username
+                            if (result[0].position) {
+                                officer.position = "DEPT"
+                            } else {
+                                officer.position = "CRM"
+                            }
+                            officers.push(officer)
                         }
-                        officers.push(officer)
+
                         if (officers.length == count) {
                             res.render('admin', { officers })
+                        
                         }
                     }
                 })
@@ -102,14 +147,14 @@ app.post("/admin/createOfficer", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
     // const admin = req.body.admin
-    const position = req.body.position
+    const position = (req.body.position === "1")
     req.models.officers.create({},(err, result) => {
         const id = result.id
         if (err) {
             console.log('add officer failed ' + user)
             res.sendStatus(403)
         }else{
-            req.models.login.create({ username: user, password: pass, admin: admin, 
+            req.models.login.create({ username: user, password: pass, 
                 position: position, officer_id: id}, (err, result1) => {
                 if (err) {
                     result.remove((err) => {
@@ -227,7 +272,18 @@ app.post("/crm/createCustomer", (req, res) => {
                         res.sendStatus(403)
                     })
                 } else {
-                    res.sendStatus(200);
+                    req.models.account.create({customer_id: result1.customer_id, amount: 0}, (err, result2) => {
+                        if (err) {
+                            result1.remove((err) => {
+                                result.remove((err) => {
+                                    console.log('add customer failed ' + id)
+                                    res.sendStatus(403)
+                                })
+                            })
+                        } else {
+                            res.sendStatus(200);
+                        }
+                    })
                 }
             })
         }
@@ -382,38 +438,89 @@ app.post("/crm/loanEdit/:id", (req, res) => {
 });
 
 app.get("/crm/DoW", (req, res) => {
-    res.render('crm/DepositWithdraw')
+    res.render('crm/DepositWithdraw', {customer: undefined})
 });
 
-app.get("/getUser/:id")
+app.get("/crm/DoW/:id", (req, res) => {
+    req.models.customers.get(req.params.id, (err, result) => {
+        if (err) {
+            res.render('crm/DepositWithdraw', {customer: undefined})
+        } else {
+            var customer = {
+                id: req.params.id,
+                name: result.fullname(),
+                dept: 0
+            }
+            req.models.account.get(req.params.id, (err, result) => {
+                if (err) {
+                    customer.balance = 0
+                } else {
+                    customer.balance = result.amount
+                }
+                req.models.loan.find({customer_id: customer.id}, (err, result) => {
+                    if (err) {
+                        res.render('crm/DepositWithdraw', {customer: undefined})
+                    } else {
+                        result.forEach(e => {
+                            customer.dept += e.amount
+                        })
+                        res.render('crm/DepositWithdraw', {customer})
+                    }
+                })
+            })
+        }
+    })
+    
+})
 
 app.post("/crm/Dow", (req, res) => {
-    var count = 0
-    const id = req.body.customer_id
-    req.models.customers.get(id, (err, result) => {
-        count = result.length
-        if (count === 0) {
-            console.log("Don't has customer")
-        }else{
-            result.forEach(e => {
-                var customer = {
-                    name: e.fullname(),
-                    balance: e.balance
-                }
-                if (err){
-                    console.log("Don't has customer")
+    const id = +req.body.id
+    const dow = (req.body.dow === "0")
+    const amount = +req.body.amount
+    req.models.account.get(id, (err, result) => {
+        if (err) {
+            console.log(err)
+            res.sendStatus(403)
+        } else {
+            if (dow) {
+                result.amount += amount
+                result.save((err) => {
+                    if (err) {
+                        res.sendStatus(403)
+                    } else {
+                        const timestamp = Date.now()
+                        const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
+                        req.models.transaction.create({customer_id: id, date: date, amount: amount}, (err, result) => {
+                            if (err) {
+                                res.sendStatus(403)
+                            } else {
+                                res.sendStatus(200)
+                            }
+                        })
+                    }
+                })
+            } else {
+                if (result.amount < amount) {
                     res.sendStatus(403)
-                }else {
-                    req.models.loan.find({customer_id: result.id}.sum(), (err, result) => {
+                } else {
+                    result.amount -= amount
+                    result.save((err) => {
                         if (err) {
-                            console.log('Sum loan failed')
                             res.sendStatus(403)
-                        }else{
-                            customer.amount = result[0].amount
+                        } else {
+                            const timestamp = Date.now()
+                            const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
+                            req.models.transaction.create({customer_id: id, date: date, amount: -amount}, (err, result) => {
+                                if (err) {
+                                    res.sendStatus(403)
+                                } else {
+                                    res.sendStatus(200)
+                                }
+                            })
                         }
                     })
                 }
-            })
+            }
         }
     })
 });

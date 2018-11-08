@@ -26,7 +26,9 @@
                 position: $('#position').val()
             }
             $.post('/admin/createOfficer', officer, (res, status) => {
-                console.log(res, status)
+                if (status === "success") {
+                    window.location.reload();
+                }
             })
         }
     </script>
@@ -87,7 +89,7 @@
                     <div class="col-6 row">
                         <div class="col-3"></div>
                         <div class="col-auto">
-                            <button type="submit" class="btn btn-outline-secondary">CREATE</button>
+                            <button type="submit" class="btn btn-outline-secondary" onclick="()=>{}">CREATE</button>
                         </div>
                     </div>
                 </div>
