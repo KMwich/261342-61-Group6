@@ -555,7 +555,33 @@ app.get("/debt/toDoList", (req, res) => {
 
 
 app.post("/debt/toDoList", (req, res) => {
-    console.log(req.body)
+    var count = 0
+    console.log(req.body.loans[0])
+    req.models.loan.find({id: req.body.loans},"time",(err,result) => {
+        if(err){
+            res.sendStatus(403)
+        }else{
+            count = result.length
+            if(count === 0){
+                res.sendStatus(403)
+            }else{
+                result.forEach(e =>{
+                    console.log(e.id+' '+req.session.user.officer_id)
+                    req.models.tracking.create({priority: 1, loan_id: e.id, debt_id: req.session.user.officer_id},(err,result)=>{
+                        if (err) {
+                            console.log(err)
+                            res.sendStatus(403)
+                            
+                        } else {
+                            res.sendStatus(200)
+                        }   
+                    })
+                })
+                
+            }
+        }
+    })
+    
 });
 
 app.get("/debt/trackLoan", (req, res) => {
