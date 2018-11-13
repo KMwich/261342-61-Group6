@@ -556,7 +556,6 @@ app.get("/debt/toDoList", (req, res) => {
 
 app.post("/debt/toDoList", (req, res) => {
     var count = 0
-    console.log(req.body.loans[0])
     req.models.loan.find({id: req.body.loans},"time",(err,result) => {
         if(err){
             res.sendStatus(403)
@@ -585,7 +584,7 @@ app.post("/debt/toDoList", (req, res) => {
 });
 
 app.get("/debt/trackLoan", (req, res) => {
-    req.models.loan.find(true, (err, result) => {
+    req.models.tracking.find({debt_id: req.session.user.officer_id}, (err, result) => {
         if (err) {
             res.render('dept/TrackTheLoan')
         }else{
@@ -596,16 +595,19 @@ app.get("/debt/trackLoan", (req, res) => {
             }else{
                 result.forEach(e => {
                     var loan = {
-                        id: e.id,
-                        amount: e.amount
+                        id: e.loan_id
                     }
-                    req.models.customers.get(e.customer_id, (err, result1) =>{ 
-                        loan.name = result1.fullname()
-                        loans.push(loan)
-                        if (loans.length === count){
-                            res.render('dept/TrackTheLoan', {loans})
-                        }
+                    req.models.loan.get(e.loan_id,(err2,result2) =>{
+                        loan.amount = result2.amount
+                        req.models.customers.get(result2.customer_id, (err3, result3) =>{ 
+                            loan.name = result3.fullname()
+                            loans.push(loan)
+                            if (loans.length === count){
+                                res.render('dept/TrackTheLoan', {loans})
+                            }
+                        })
                     })
+                   
                })
             }
         }
