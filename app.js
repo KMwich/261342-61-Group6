@@ -18,9 +18,7 @@ app.use(session({
 app.set('view engine', 'ejs')
 
 app.get("/", (req, res) => {
-    req.models.login.find({ username: orm.not_in(['test2','test1']) }, (err, res) => {
-        res.forEach(r => console.log(r.username))
-    })
+   
     res.render('login');
 });
 
@@ -509,59 +507,57 @@ app.post("/crm/Dow", (req, res) => {
 
 app.get(["/debt", "/debt/toDoList"], (req, res) => {
     if (checkUser(req.session, res, 'debt')) {
-        req.models.loan.find(true, (err, result) => {
+        var loan_own = []
+        var loans = []
+        req.models.tracking.find({debt_id: req.session.user.officer_id},(err,result)=>{
             if (err) {
-                res.sendStatus(403)
-            } else {
-                var loans = []
-                var count = result.length
-                if (result.length === 0) {
+                res.render('dept/ToDoList', { loans })
+            }
+            result.forEach(e =>{
+                loan_own.push(e.loan_id)
+            })
+            req.models.loan.find((loan_own.length !== 0)? {id: orm.not_in(loan_own)}:true, (err, result) => {
+                if (err) {
                     res.render('dept/ToDoList', { loans })
                 } else {
-                    result.forEach(e => {
-                        loan = {
-                            id: e.id,
-                            amount: e.amount,
-                            payback: e.payback
-                        }
-                        req.models.customers.get(e.customer_id, (err, result) => {
-                            loan.name = result.fullname()
-                            loans.push(loan)
-                            if (loans.length === count) {
-                                res.render('dept/ToDoList', { loans })
+                    var count = result.length
+                    if (result.length === 0) {
+                        res.render('dept/ToDoList', { loans })
+                    } else {
+                        
+                        result.forEach(e => {
+                            var loan = {
+                                id: e.id,
+                                amount: e.amount,
+                                payback: e.payback
                             }
+                            
+                            req.models.customers.get(e.customer_id, (err, result) => {
+                                loan.name = result.fullname()
+                                loans.push(loan)
+                                if (loans.length === count) {
+                                    res.render('dept/ToDoList', { loans })
+                                }
+                            })
                         })
-                    })
+                    }
                 }
-            }
+            })
+        
         })
+        
     }
 })
 
 app.post("/debt/toDoList", (req, res) => {
     var count = 0
-    req.models.loan.find({ id: req.body.loans }, "time", (err, result) => {
-        if (err) {
-            res.sendStatus(403)
-        } else {
-            count = result.length
-            if (count === 0) {
-                res.sendStatus(403)
-            } else {
-                result.forEach(e => {
-                    //console.log(e.id+' '+req.session.user.officer_id)
-                    req.models.tracking.create({ loan_id: e.id, debt_id: req.session.user.officer_id }, (err, result) => {
-                        /*if (err) {
-                            console.log(err)
-                            res.sendStatus(403)
-                            
-                        } else {
-                            res.sendStatus(200)
-                        }*/
-                    })
-                })
+    req.body.loans.forEach(id => {
+        req.models.tracking.create({ loan_id: id, debt_id: req.session.user.officer_id }, (err, result) => {
+            count++   
+            if (count === req.body.loans.length) {
+                res.sendStatus(200)
             }
-        }
+        })
     })
 });
 
@@ -624,7 +620,7 @@ app.get(["/customer", "/customer/information"], (req, res) => {
                             firstname: result.fname, surname: result.lname, date: formatDate(result.DOB), gender: result.gender,
                             phone: result.phone, id: result.ssn, homeaddress: result.homeaddress, workaddress: result.workaddress, blance: customer.balance, deptblance: customer.dept
                         })
-                        console.log(result.fullname())
+                    
                     })
                 })
             }
