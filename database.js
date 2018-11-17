@@ -4,6 +4,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
+            DOB: Date,
             gender: Boolean,
             ssn: String
         }, {
@@ -18,6 +19,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
+            DOB: Date,
             gender: Boolean,
             ssn: String
         }, {
@@ -32,6 +34,7 @@ const models = {
             id: {type: 'number', key: true},
             fname: String,
             lname: String,
+            DOB: Date,
             gender: Boolean,
             ssn: String
         }, {
