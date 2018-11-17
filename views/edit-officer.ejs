@@ -18,9 +18,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 
-    <script>
-        
-    </script>
     <style>
         a {
             color: #555
@@ -43,21 +40,21 @@
         <div class="container">
             <h2 class="text-left mt-3">Edit Profile</h2>
             <hr style="height:1px;width:100%;;background:black">
-            <form>
+            <!-- <form action="/editOfficer" method="POST">
                 <div class="form-row">
                     <div class="col-6">
                         <label class="ml-3" for="id">ID</label>
-                        <input type="text" class="form-control mt-auto" id="id" placeholder="ID" required>
+                        <input type="text" class="form-control mt-auto" id="id" name="id" placeholder="ID" required>
                     </div>
                 </div>
                 <div class="form-row mt-3">
                     <div class="col-6">
                         <label class="ml-3" for="fname">Firstname</label>
-                        <input type="text" class="form-control mt-auto" style="width:300px;" id="fname" placeholder="Firstname" required>
+                        <input type="text" class="form-control mt-auto" style="width:300px;" id="fname" name="fname" placeholder="Firstname" required>
                     </div>
                     <div class="col-6">
                         <label class="ml-3" for="sname">Surname</label>
-                        <input type="text" class="form-control mt-auto" style="width:300px;" id="sname" placeholder="Surname" required>
+                        <input type="text" class="form-control mt-auto" style="width:300px;" id="sname" name="lname" placeholder="Surname" required>
                     </div>
                 </div>
                 <div class="form-row mt-3">
@@ -67,7 +64,35 @@
                     </div>
                     <div class="col-6">
                         <label class="ml-3">Gender</label>
-                        <select class="form-control" style="width: 100px">
+                        <select class="form-control" name="gender" style="width: 100px">
+                            <option value="0">Male</option>
+                            <option value="1">Female</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row mt-4">
+                    <button type="submit" class="btn btn-outline-secondary ml-2 px-5">Save</button>
+                </div>
+            </form> -->
+            <form action="/editOfficer" method="POST">
+                <div class="form-row mt-3">
+                    <div class="col-6">
+                        <label class="ml-3" for="fname">Firstname</label>
+                        <input type="text" class="form-control mt-auto" style="width:300px;" id="fname" name="fname" placeholder="Firstname" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="ml-3" for="sname">Surname</label>
+                        <input type="text" class="form-control mt-auto" style="width:300px;" id="sname" name="lname" placeholder="Surname" required>
+                    </div>
+                </div>
+                <div class="form-row mt-3">
+                    <div class="col-6">
+                        <label class="ml-3" for="id">ID</label>
+                        <input type="text" maxlength="13" minlength="13" class="form-control mt-auto" style="width:300px;" id="ssn" name="ssn" placeholder="ID" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="ml-3">Gender</label>
+                        <select class="form-control" name="gender" style="width: 100px" required>
                             <option value="0">Male</option>
                             <option value="1">Female</option>
                         </select>
