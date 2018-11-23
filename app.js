@@ -111,22 +111,20 @@ app.post("/admin/createOfficer", (req, res) => {
     const user = req.body.username
     const pass = req.body.password
     const position = (req.body.position === "1")
+    getDB(req).transaction.begin()
     getDB(req).models.officers.create({}, (err, result) => {
-        const id = result.id
         if (err) {
             console.log('add officer failed ' + user)
+            getDB(req).transaction.rollback()
             res.redirect('/admin');
         } else {
-            getDB(req).models.login.create({
-                username: user, password: pass,
-                position: position, officer_id: id
-            }, (err, result1) => {
+            getDB(req).models.login.create({ username: user, password: pass, position: position, officer_id: result.id }, (err, result1) => {
                 if (err) {
-                    result.remove((err) => {
-                        console.log('add officer failed ' + user)
-                        res.redirect('/admin');
-                    })
+                    console.log('add officer failed ' + user)
+                    getDB(req).transaction.rollback()
+                    res.redirect('/admin');
                 } else {
+                    getDB(req).transaction.commit()
                     res.redirect('/admin');
                 }
             })
@@ -217,30 +215,29 @@ app.post("/crm/createCustomer", (req, res) => {
     const gen = (req.body.gender === "1")
     const user = req.body.username
     const pass = req.body.password
+    getDB(req).transaction.begin()
     getDB(req).models.customers.create({
         ssn: id, fname: fname, lname: lname, workaddress: work,
         DOB: dob, homeaddress: home, phone: phone, gender: gen, balance: 0
     }, (err, result) => {
         if (err) {
             console.log('add customer failed ' + id)
+            getDB(req).transaction.rollback()
             res.sendStatus(403)
         } else {
             getDB(req).models.login.create({ username: user, password: pass, customer_id: result.id }, (err, result1) => {
                 if (err) {
-                    result.remove((err) => {
-                        console.log('add customer failed ' + id)
-                        res.sendStatus(403)
-                    })
+                    console.log('add customer failed ' + id)
+                    getDB(req).transaction.rollback()
+                    res.sendStatus(403)
                 } else {
                     getDB(req).models.account.create({ customer_id: result1.customer_id, amount: 0 }, (err, result2) => {
                         if (err) {
-                            result1.remove((err) => {
-                                result.remove((err) => {
-                                    console.log('add customer failed ' + id)
-                                    res.sendStatus(403)
-                                })
-                            })
+                            console.log('add customer failed ' + id)
+                            getDB(req).transaction.rollback()
+                            res.sendStatus(403)
                         } else {
+                            getDB(req).transaction.commit()
                             res.sendStatus(200);
                         }
                     })
@@ -457,23 +454,28 @@ app.post("/crm/Dow", (req, res) => {
     const id = +req.body.id
     const dow = (req.body.dow === "0")
     const amount = +req.body.amount
+    getDB(req).transaction.begin()
     getDB(req).models.account.get(id, (err, result) => {
         if (err) {
             console.log(err)
+            getDB(req).transaction.rollback()
             res.sendStatus(403)
         } else {
             if (dow) {
                 result.amount += amount
                 result.save((err) => {
                     if (err) {
+                        getDB(req).transaction.rollback()
                         res.sendStatus(403)
                     } else {
                         const timestamp = Date.now()
                         const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
                         getDB(req).models.transaction.create({ customer_id: id, date: date, amount: amount }, (err, result) => {
                             if (err) {
+                                getDB(req).transaction.rollback()
                                 res.sendStatus(403)
                             } else {
+                                getDB(req).transaction.commit()
                                 res.sendStatus(200)
                             }
                         })
@@ -481,19 +483,23 @@ app.post("/crm/Dow", (req, res) => {
                 })
             } else {
                 if (result.amount < amount) {
+                    getDB(req).transaction.rollback()
                     res.sendStatus(403)
                 } else {
                     result.amount -= amount
                     result.save((err) => {
                         if (err) {
+                            getDB(req).transaction.rollback()
                             res.sendStatus(403)
                         } else {
                             const timestamp = Date.now()
                             const date = formatDate(Date(timestamp)) + ' ' + formatTime(Date(timestamp))
                             getDB(req).models.transaction.create({ customer_id: id, date: date, amount: -amount }, (err, result) => {
                                 if (err) {
+                                    getDB(req).transaction.rollback()
                                     res.sendStatus(403)
                                 } else {
+                                    getDB(req).transaction.commit()
                                     res.sendStatus(200)
                                 }
                             })
@@ -922,17 +928,20 @@ function connectDB() {
         status: false,
         begin: function (cb) {
             connect.driver.execQuery("BEGIN", function (err) {
-                cb(err)
+                if (typeof cb === "function")
+                    cb(err)
             })
         },
         commit: function (cb) {
             connect.driver.execQuery("COMMIT", function (err) {
-                cb(err)
+                if (typeof cb === "function")
+                    cb(err)
             })
         },
         rollback: function (cb) {
             connect.driver.execQuery("ROLLBACK", function (err) {
-                cb(err)
+                if (typeof cb === "function")
+                    cb(err)
             })
         }
     }
